@@ -33,22 +33,20 @@ type Discovery interface {
 }
 
 func New(
-	host server.Host,
-	port server.Port,
+	srv server.Server,
 	maybeDiscoveryOption *Option,
 	maybeHealthcheckMonitorOption *healthcheck.Option,
 	metricsEntries []metrics.MetricEntry,
 ) Discovery {
 	discovery := newNopDiscovery(
-		host,
-		port,
+		srv,
 		maybeHealthcheckMonitorOption,
 		metricsEntries,
 	)
 	if maybeDiscoveryOption != nil {
 		if err := maybeDiscoveryOption.Validate(); err == nil {
 			discovery = newDefaultDiscovery(
-				host, port,
+				srv,
 				*maybeDiscoveryOption,
 				maybeHealthcheckMonitorOption,
 				metricsEntries,
@@ -59,27 +57,24 @@ func New(
 }
 
 type nopDiscovery struct {
-	host server.Host
-	port server.Port
+	srv server.Server
 
 	monitor *monitor.Monitor
 }
 
 func newNopDiscovery(
-	host server.Host,
-	port server.Port,
+	srv server.Server,
 	maybeHealthcheckMonitorOption *healthcheck.Option,
 	metricsEntries []metrics.MetricEntry,
 ) Discovery {
 	m := monitor.New(
-		server.Address(host),
-		port,
+		server.Address(srv.Host),
+		srv.Port,
 		maybeHealthcheckMonitorOption,
 		metricsEntries,
 	)
 	return &nopDiscovery{
-		host: host,
-		port: port,
+		srv: srv,
 
 		monitor: m,
 	}
@@ -88,9 +83,8 @@ func newNopDiscovery(
 func (d *nopDiscovery) GetMembers() []*server.Member {
 	return []*server.Member{
 		server.NewMember(
-			d.host,
-			server.Address(d.host),
-			d.port,
+			d.srv,
+			server.Address(d.srv.Host),
 			d.monitor.GetHealthStatus(),
 			d.monitor.GetMetricsRepository(),
 		),

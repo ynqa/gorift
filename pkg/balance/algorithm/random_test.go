@@ -15,14 +15,14 @@ func TestRandom(t *testing.T) {
 	}{
 		{
 			members: []*server.Member{
-				server.NewMember("h1", server.Address(""), server.Port(8080), server.HealthStatus{}, nil),
-				server.NewMember("h2", server.Address(""), server.Port(8080), server.HealthStatus{}, nil),
+				server.NewMember(server.Server{Host: server.Host("h1"), Port: server.Port(8080)}, server.Address(""), server.HealthStatus{}, nil),
+				server.NewMember(server.Server{Host: server.Host("h2"), Port: server.Port(8080)}, server.Address(""), server.HealthStatus{}, nil),
 			},
 			isErr: false,
 		},
 		{
 			members: []*server.Member{
-				server.NewMember("h1", server.Address(""), server.Port(8080), server.HealthStatus{}, nil),
+				server.NewMember(server.Server{Host: server.Host("h1"), Port: server.Port(8080)}, server.Address(""), server.HealthStatus{}, nil),
 			},
 			isErr: false,
 		},

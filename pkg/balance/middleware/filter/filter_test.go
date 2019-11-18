@@ -16,17 +16,17 @@ func TestAvailables(t *testing.T) {
 	}{
 		{
 			members: []*server.Member{
-				server.NewMember("h1", server.Address(""), server.Port(8080), server.HealthStatus{Available: true}, nil),
-				server.NewMember("h2", server.Address(""), server.Port(8080), server.HealthStatus{}, nil),
+				server.NewMember(server.Server{Host: server.Host("h1"), Port: server.Port(8080)}, server.Address(""), server.HealthStatus{Available: true}, nil),
+				server.NewMember(server.Server{Host: server.Host("h1"), Port: server.Port(8080)}, server.Address(""), server.HealthStatus{}, nil),
 			},
 			expected: []*server.Member{
-				server.NewMember("h1", server.Address(""), server.Port(8080), server.HealthStatus{Available: true}, nil),
+				server.NewMember(server.Server{Host: server.Host("h1"), Port: server.Port(8080)}, server.Address(""), server.HealthStatus{Available: true}, nil),
 			},
 		},
 		{
 			members: []*server.Member{
-				server.NewMember("h1", server.Address(""), server.Port(8080), server.HealthStatus{}, nil),
-				server.NewMember("h2", server.Address(""), server.Port(8080), server.HealthStatus{}, nil),
+				server.NewMember(server.Server{Host: server.Host("h1"), Port: server.Port(8080)}, server.Address(""), server.HealthStatus{}, nil),
+				server.NewMember(server.Server{Host: server.Host("h1"), Port: server.Port(8080)}, server.Address(""), server.HealthStatus{}, nil),
 			},
 			expected: []*server.Member{},
 		},

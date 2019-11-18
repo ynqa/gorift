@@ -13,8 +13,7 @@ import (
 )
 
 type defaultDiscovery struct {
-	host                     server.Host
-	port                     server.Port
+	srv                      server.Server
 	option                   Option
 	healthcheckMonitorOption *healthcheck.Option
 	metricsEntries           []metrics.MetricEntry
@@ -27,8 +26,7 @@ type defaultDiscovery struct {
 }
 
 func newDefaultDiscovery(
-	host server.Host,
-	port server.Port,
+	srv server.Server,
 	option Option,
 	maybeHealthcheckMonitorOption *healthcheck.Option,
 	metricsEntries []metrics.MetricEntry,
@@ -37,18 +35,17 @@ func newDefaultDiscovery(
 	monitors := make(map[server.Address]*monitor.Monitor)
 
 	// [TODO] initial status: whether it registers host for monitor or not.
-	hostAsAddress := server.Address(host)
+	hostAsAddress := server.Address(srv.Host)
 	marks[hostAsAddress] = true
 	monitors[hostAsAddress] = monitor.New(
 		hostAsAddress,
-		port,
+		srv.Port,
 		maybeHealthcheckMonitorOption,
 		metricsEntries,
 	)
 
 	d := &defaultDiscovery{
-		host:                     host,
-		port:                     port,
+		srv:                      srv,
 		option:                   option,
 		healthcheckMonitorOption: maybeHealthcheckMonitorOption,
 		metricsEntries:           metricsEntries,
@@ -69,9 +66,8 @@ func (d *defaultDiscovery) GetMembers() []*server.Member {
 	var members []*server.Member
 	for address, monitor := range d.monitors {
 		members = append(members, server.NewMember(
-			d.host,
+			d.srv,
 			address,
-			d.port,
 			monitor.GetHealthStatus(),
 			monitor.GetMetricsRepository(),
 		))
@@ -110,7 +106,7 @@ func (d *defaultDiscovery) shutdownMembers() {
 func (d *defaultDiscovery) handle() {
 	report, err := d.option.Resolver.Lookup(
 		resolve.ResolveRequest{
-			Host: d.host,
+			Host: d.srv.Host,
 		},
 	)
 	if err != nil {
@@ -138,7 +134,7 @@ func (d *defaultDiscovery) update(report resolve.ResolveReport) {
 				// marked and existed
 				d.monitors[address] = monitor.New(
 					address,
-					d.port,
+					d.srv.Port,
 					d.healthcheckMonitorOption,
 					d.metricsEntries,
 				)

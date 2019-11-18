@@ -34,10 +34,9 @@ func (p Port) String() string {
 }
 
 type Member struct {
-	Host    Host
-	Address Address
-	Port    Port
+	Server Server
 
+	Address      Address
 	HealthStatus HealthStatus
 
 	mu                sync.RWMutex
@@ -50,17 +49,15 @@ type HealthStatus struct {
 }
 
 func NewMember(
-	host Host,
+	srv Server,
 	address Address,
-	port Port,
 	healthStatus HealthStatus,
 	metricsRepository metrics.MetricsRepository,
 ) *Member {
 	return &Member{
-		Host:    host,
-		Address: address,
-		Port:    port,
+		Server: srv,
 
+		Address:      address,
 		HealthStatus: healthStatus,
 
 		metricsRepository: metricsRepository,

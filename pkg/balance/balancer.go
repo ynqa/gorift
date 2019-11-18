@@ -145,7 +145,7 @@ func (b *Balancer) Validate() error {
 func (b *Balancer) Register(servers ...server.Server) {
 	for _, srv := range servers {
 		d := discovery.New(
-			srv.Host, srv.Port,
+			srv,
 			b.maybeDiscoveryOption,
 			b.maybeHealthcheckMonitorOption,
 			b.metricsEntries,
