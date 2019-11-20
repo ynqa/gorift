@@ -7,14 +7,14 @@ import (
 )
 
 type Resolver interface {
-	Lookup(ResolveRequest) (ResolveReport, error)
+	Lookup(Request) (Report, error)
 }
 
-type ResolveRequest struct {
+type Request struct {
 	Host server.Host
 }
 
-type ResolveReport struct {
+type Report struct {
 	Addresses []server.Address
 	LastCheck time.Time
 }

@@ -5,7 +5,7 @@ import (
 )
 
 const (
-	TotalPickedLabel MetricsLabel = "Gorift_TotalPicked"
+	TotalPickedLabel Label = "Gorift_TotalPicked"
 )
 
 var (

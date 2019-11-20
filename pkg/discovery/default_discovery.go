@@ -16,7 +16,7 @@ type defaultDiscovery struct {
 	srv                      server.Server
 	option                   Option
 	healthcheckMonitorOption *healthcheck.Option
-	metricsEntries           []metrics.MetricEntry
+	metricsEntries           []metrics.Entry
 
 	mu       sync.RWMutex
 	marks    map[server.Address]bool
@@ -29,7 +29,7 @@ func newDefaultDiscovery(
 	srv server.Server,
 	option Option,
 	maybeHealthcheckMonitorOption *healthcheck.Option,
-	metricsEntries []metrics.MetricEntry,
+	metricsEntries []metrics.Entry,
 ) Discovery {
 	marks := make(map[server.Address]bool)
 	monitors := make(map[server.Address]*monitor.Monitor)
@@ -105,7 +105,7 @@ func (d *defaultDiscovery) shutdownMembers() {
 
 func (d *defaultDiscovery) handle() {
 	report, err := d.option.Resolver.Lookup(
-		resolve.ResolveRequest{
+		resolve.Request{
 			Host: d.srv.Host,
 		},
 	)
@@ -116,7 +116,7 @@ func (d *defaultDiscovery) handle() {
 	go d.update(report)
 }
 
-func (d *defaultDiscovery) update(report resolve.ResolveReport) {
+func (d *defaultDiscovery) update(report resolve.Report) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 

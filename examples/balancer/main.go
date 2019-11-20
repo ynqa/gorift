@@ -19,8 +19,8 @@ import (
 
 type nopResolver struct{}
 
-func (r *nopResolver) Lookup(req resolve.ResolveRequest) (resolve.ResolveReport, error) {
-	return resolve.ResolveReport{
+func (r *nopResolver) Lookup(req resolve.Request) (resolve.Report, error) {
+	return resolve.Report{
 		Addresses: []server.Address{
 			server.Address(req.Host),
 		},
@@ -28,23 +28,23 @@ func (r *nopResolver) Lookup(req resolve.ResolveRequest) (resolve.ResolveReport,
 	}, nil
 }
 
-func nopHealthcheckFn() healthcheck.HealthcheckFn {
-	return healthcheck.HealthcheckFn(func(req healthcheck.HealthcheckRequest) (healthcheck.HealthcheckReport, error) {
-		return healthcheck.HealthcheckReport{
+func nopHealthcheckFn() healthcheck.Func {
+	return healthcheck.Func(func(req healthcheck.Request) (healthcheck.Report, error) {
+		return healthcheck.Report{
 			Available: true,
 			LastCheck: time.Now(),
 		}, nil
 	})
 }
 
-func nopFilterFn() filter.FilterFn {
-	return filter.FilterFn(func(members []*server.Member) []*server.Member {
+func nopFilterFn() filter.Func {
+	return filter.Func(func(members []*server.Member) []*server.Member {
 		return members
 	})
 }
 
 const (
-	fakeMetricLabel metrics.MetricsLabel = "fake"
+	fakeMetricLabel metrics.Label = "fake"
 )
 
 type fakeMetric struct {
@@ -68,10 +68,10 @@ func main() {
 	balancer, err := balance.New(
 		balance.WithZapLogger(logger),
 		balance.WithBalancerAlgorithm(algorithm.NewRandom()),
-		balance.WithFilterFnList(nopFilterFn()),
+		balance.WithFilterFuncs(nopFilterFn()),
 		balance.EnableDiscovery(time.Second, &nopResolver{}),
 		balance.EnableHealthcheck(time.Second, nopHealthcheckFn()),
-		balance.AddCustomMetrics(metrics.MetricEntry{
+		balance.AddCustomMetrics(metrics.Entry{
 			Label:  fakeMetricLabel,
 			Metric: &fakeMetric{},
 		}),

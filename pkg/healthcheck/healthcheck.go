@@ -6,14 +6,14 @@ import (
 	"github.com/gorift/gorift/pkg/server"
 )
 
-type HealthcheckFn func(HealthcheckRequest) (HealthcheckReport, error)
+type Func func(Request) (Report, error)
 
-type HealthcheckRequest struct {
+type Request struct {
 	Address server.Address
 	Port    server.Port
 }
 
-type HealthcheckReport struct {
+type Report struct {
 	Available bool
 	LastCheck time.Time
 }

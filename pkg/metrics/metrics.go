@@ -4,22 +4,22 @@ import (
 	"github.com/mohae/deepcopy"
 )
 
-type MetricsLabel string
+type Label string
 
 type Metric interface {
 	Add(interface{}) error
 	Get() interface{}
 }
 
-type MetricEntry struct {
-	Label  MetricsLabel
+type Entry struct {
+	Label  Label
 	Metric Metric
 }
 
-type MetricsRepository map[MetricsLabel]Metric
+type Repository map[Label]Metric
 
-func NewMetricsRepository(entries ...MetricEntry) MetricsRepository {
-	repository := make(MetricsRepository)
+func NewMetricsRepository(entries ...Entry) Repository {
+	repository := make(Repository)
 
 	// default metrics for balancer
 	repository[TotalPickedLabel] = deepcopy.Copy(TotalPickedMetric).(Metric)

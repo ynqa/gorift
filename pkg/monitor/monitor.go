@@ -8,7 +8,7 @@ import (
 
 type Monitor struct {
 	healthcheckMonitor healthcheckmonitor.Monitor
-	metricsRepository  metrics.MetricsRepository
+	metricsRepository  metrics.Repository
 
 	doneCh chan struct{}
 }
@@ -17,7 +17,7 @@ func New(
 	address server.Address,
 	port server.Port,
 	maybeHealthcheckMonitorOption *healthcheckmonitor.Option,
-	metricsEntries []metrics.MetricEntry,
+	metricsEntries []metrics.Entry,
 ) *Monitor {
 	healthcheckMonitor := healthcheckmonitor.NewNopMonitor()
 	if maybeHealthcheckMonitorOption != nil {
@@ -34,7 +34,7 @@ func New(
 
 func newMonitor(
 	healthcheckMonitor healthcheckmonitor.Monitor,
-	metricsEntries []metrics.MetricEntry,
+	metricsEntries []metrics.Entry,
 ) *Monitor {
 	monitor := &Monitor{
 		healthcheckMonitor: healthcheckMonitor,
@@ -50,7 +50,7 @@ func (m *Monitor) GetHealthStatus() server.HealthStatus {
 	return m.healthcheckMonitor.GetHealthStatus()
 }
 
-func (m *Monitor) GetMetricsRepository() metrics.MetricsRepository {
+func (m *Monitor) GetMetricsRepository() metrics.Repository {
 	return m.metricsRepository
 }
 

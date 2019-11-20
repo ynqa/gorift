@@ -36,7 +36,7 @@ func New(
 	srv server.Server,
 	maybeDiscoveryOption *Option,
 	maybeHealthcheckMonitorOption *healthcheck.Option,
-	metricsEntries []metrics.MetricEntry,
+	metricsEntries []metrics.Entry,
 ) Discovery {
 	discovery := newNopDiscovery(
 		srv,
@@ -65,7 +65,7 @@ type nopDiscovery struct {
 func newNopDiscovery(
 	srv server.Server,
 	maybeHealthcheckMonitorOption *healthcheck.Option,
-	metricsEntries []metrics.MetricEntry,
+	metricsEntries []metrics.Entry,
 ) Discovery {
 	m := monitor.New(
 		server.Address(srv.Host),

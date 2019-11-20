@@ -11,7 +11,7 @@ import (
 
 type Option struct {
 	Interval time.Duration
-	Fn       healthcheck.HealthcheckFn
+	Fn       healthcheck.Func
 }
 
 func (opt Option) Validate() error {

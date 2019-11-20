@@ -8,16 +8,16 @@ import (
 
 func TestNewMetricsRepository(t *testing.T) {
 	testCases := []struct {
-		entries     []MetricEntry
+		entries     []Entry
 		expectedLen int
 	}{
 		{
 			expectedLen: 1,
 		},
 		{
-			entries: []MetricEntry{
+			entries: []Entry{
 				{
-					Label:  MetricsLabel("fake"),
+					Label:  Label("fake"),
 					Metric: &intMetric{},
 				},
 			},

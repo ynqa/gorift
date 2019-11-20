@@ -17,7 +17,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	report, err := resolver.Lookup(resolve.ResolveRequest{
+	report, err := resolver.Lookup(resolve.Request{
 		Host: server.Host("localhost"),
 	})
 	if err != nil {

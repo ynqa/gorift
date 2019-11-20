@@ -63,7 +63,7 @@ func (m *defaultMonitor) Shutdown() {
 }
 
 func (m *defaultMonitor) handle() {
-	report, err := m.option.Fn(healthcheck.HealthcheckRequest{
+	request, err := m.option.Fn(healthcheck.Request{
 		Address: m.address,
 		Port:    m.port,
 	})
@@ -71,11 +71,11 @@ func (m *defaultMonitor) handle() {
 		global.SendError(err)
 		return
 	}
-	go m.update(report)
+	go m.update(request)
 }
 
 func (m *defaultMonitor) update(
-	report healthcheck.HealthcheckReport,
+	report healthcheck.Report,
 ) {
 	m.mu.Lock()
 	defer m.mu.Unlock()

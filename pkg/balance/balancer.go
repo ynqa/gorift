@@ -18,19 +18,19 @@ import (
 )
 
 var (
-	defaultLogger       = zap.NewNop()
-	defaultAlgorithm    = algorithm.NewRandom()
-	defaultFilterFnList = []filter.FilterFn{filter.Availables()}
+	defaultLogger      = zap.NewNop()
+	defaultAlgorithm   = algorithm.NewRandom()
+	defaultFilterFuncs = []filter.Func{filter.Availables()}
 )
 
 type option struct {
-	logger       *zap.Logger
-	algorithm    algorithm.Algorithm
-	filterFnList []filter.FilterFn
+	logger      *zap.Logger
+	algorithm   algorithm.Algorithm
+	filterFuncs []filter.Func
 
 	maybeDiscoveryOption          *discovery.Option
 	maybeHealthcheckMonitorOption *healthcheckmonitor.Option
-	metricsEntries                []metrics.MetricEntry
+	metricsEntries                []metrics.Entry
 }
 
 type BalancerOption func(*option)
@@ -47,9 +47,9 @@ func WithBalancerAlgorithm(algorithm algorithm.Algorithm) BalancerOption {
 	})
 }
 
-func WithFilterFnList(funcs ...filter.FilterFn) BalancerOption {
+func WithFilterFuncs(funcs ...filter.Func) BalancerOption {
 	return BalancerOption(func(opt *option) {
-		opt.filterFnList = funcs
+		opt.filterFuncs = funcs
 	})
 }
 
@@ -67,7 +67,7 @@ func EnableDiscovery(
 
 func EnableHealthcheck(
 	interval time.Duration,
-	fn healthcheck.HealthcheckFn,
+	fn healthcheck.Func,
 ) BalancerOption {
 	return BalancerOption(func(opt *option) {
 		opt.maybeHealthcheckMonitorOption = &healthcheckmonitor.Option{
@@ -78,7 +78,7 @@ func EnableHealthcheck(
 }
 
 func AddCustomMetrics(
-	entries ...metrics.MetricEntry,
+	entries ...metrics.Entry,
 ) BalancerOption {
 	return BalancerOption(func(opt *option) {
 		opt.metricsEntries = entries
@@ -86,22 +86,22 @@ func AddCustomMetrics(
 }
 
 type Balancer struct {
-	logger       *zap.Logger
-	algorithm    algorithm.Algorithm
-	filterFnList []filter.FilterFn
+	logger      *zap.Logger
+	algorithm   algorithm.Algorithm
+	filterFuncs []filter.Func
 
 	maybeDiscoveryOption          *discovery.Option
 	maybeHealthcheckMonitorOption *healthcheckmonitor.Option
-	metricsEntries                []metrics.MetricEntry
+	metricsEntries                []metrics.Entry
 
 	multiDiscovery *discovery.MultiDiscovery
 }
 
 func New(opts ...BalancerOption) (*Balancer, error) {
 	opt := option{
-		logger:       defaultLogger,
-		algorithm:    defaultAlgorithm,
-		filterFnList: defaultFilterFnList,
+		logger:      defaultLogger,
+		algorithm:   defaultAlgorithm,
+		filterFuncs: defaultFilterFuncs,
 	}
 
 	for _, fn := range opts {
@@ -109,9 +109,9 @@ func New(opts ...BalancerOption) (*Balancer, error) {
 	}
 
 	balancer := &Balancer{
-		logger:       opt.logger,
-		algorithm:    opt.algorithm,
-		filterFnList: opt.filterFnList,
+		logger:      opt.logger,
+		algorithm:   opt.algorithm,
+		filterFuncs: opt.filterFuncs,
 
 		maybeDiscoveryOption:          opt.maybeDiscoveryOption,
 		maybeHealthcheckMonitorOption: opt.maybeHealthcheckMonitorOption,
@@ -160,7 +160,7 @@ func (b *Balancer) GetMembers() []*server.Member {
 
 func (b *Balancer) Pick() (*server.Member, error) {
 	candidate := b.multiDiscovery.GetMembers()
-	for _, fn := range b.filterFnList {
+	for _, fn := range b.filterFuncs {
 		candidate = fn(candidate)
 	}
 	picked, err := b.algorithm.Pick(candidate)

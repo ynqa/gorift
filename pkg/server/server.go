@@ -40,7 +40,7 @@ type Member struct {
 	HealthStatus HealthStatus
 
 	mu                sync.RWMutex
-	metricsRepository metrics.MetricsRepository
+	metricsRepository metrics.Repository
 }
 
 type HealthStatus struct {
@@ -52,7 +52,7 @@ func NewMember(
 	srv Server,
 	address Address,
 	healthStatus HealthStatus,
-	metricsRepository metrics.MetricsRepository,
+	metricsRepository metrics.Repository,
 ) *Member {
 	return &Member{
 		Server: srv,
@@ -64,7 +64,7 @@ func NewMember(
 	}
 }
 
-func (m *Member) GetMetrics(label metrics.MetricsLabel) (interface{}, error) {
+func (m *Member) GetMetrics(label metrics.Label) (interface{}, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	metric, ok := m.metricsRepository[label]
@@ -74,7 +74,7 @@ func (m *Member) GetMetrics(label metrics.MetricsLabel) (interface{}, error) {
 	return metric.Get(), nil
 }
 
-func (m *Member) AddMetrics(label metrics.MetricsLabel, val interface{}) error {
+func (m *Member) AddMetrics(label metrics.Label, val interface{}) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
 	metric, ok := m.metricsRepository[label]

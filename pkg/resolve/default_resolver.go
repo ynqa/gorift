@@ -50,13 +50,13 @@ func NewDefaultResolver(opts ...DefaultResolverOption) (Resolver, error) {
 	}, nil
 }
 
-func (r *DefaultResolver) Lookup(req ResolveRequest) (ResolveReport, error) {
+func (r *DefaultResolver) Lookup(req Request) (Report, error) {
 	m4 := &dns.Msg{}
 	m4.SetQuestion(dns.Fqdn(req.Host.String()), dns.TypeA)
 
 	resp, _, err := r.client.Exchange(m4, selectServer(r.cfg))
 	if err != nil {
-		return ResolveReport{}, err
+		return Report{}, err
 	}
 
 	addresses := make([]server.Address, 0)
@@ -66,7 +66,7 @@ func (r *DefaultResolver) Lookup(req ResolveRequest) (ResolveReport, error) {
 			addresses = append(addresses, server.Address(record.A.String()))
 		}
 	}
-	return ResolveReport{
+	return Report{
 		Addresses: addresses,
 		LastCheck: time.Now(),
 	}, nil
