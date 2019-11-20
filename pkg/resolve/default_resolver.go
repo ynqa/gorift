@@ -10,8 +10,8 @@ import (
 	"github.com/gorift/gorift/pkg/server"
 )
 
-var (
-	defaultResolvConfPath = "/etc/resolv.conf"
+const (
+	defaultResolvConfigPath = "/etc/resolv.conf"
 )
 
 type DefaultResolver struct {
@@ -19,11 +19,31 @@ type DefaultResolver struct {
 	client *dns.Client
 }
 
-func NewDefaultResolver() (Resolver, error) {
-	cfg, err := dns.ClientConfigFromFile(defaultResolvConfPath)
+type option struct {
+	resolveConfigPath string
+}
+
+type DefaultResolverOption func(*option)
+
+func WithResolvConfigPath(path string) DefaultResolverOption {
+	return DefaultResolverOption(func(opt *option) {
+		opt.resolveConfigPath = path
+	})
+}
+
+func NewDefaultResolver(opts ...DefaultResolverOption) (Resolver, error) {
+	opt := option{
+		resolveConfigPath: defaultResolvConfigPath,
+	}
+	for _, fn := range opts {
+		fn(&opt)
+	}
+
+	cfg, err := dns.ClientConfigFromFile(opt.resolveConfigPath)
 	if err != nil {
 		return nil, xerrors.Errorf("failed to create resolver: %w", err)
 	}
+
 	return &DefaultResolver{
 		cfg:    cfg,
 		client: &dns.Client{},
