@@ -141,6 +141,7 @@ func (d *defaultDiscovery) update(report resolve.Report) {
 			}
 		} else {
 			// not marked
+			d.monitors[address].Shutdown()
 			delete(d.monitors, address)
 		}
 	}
