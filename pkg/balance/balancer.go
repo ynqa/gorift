@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"go.uber.org/zap"
+	"golang.org/x/xerrors"
 
 	"github.com/gorift/gorift/pkg/balance/algorithm"
 	"github.com/gorift/gorift/pkg/balance/middleware/filter"
@@ -159,11 +160,14 @@ func (b *Balancer) GetMembers() []*server.Member {
 }
 
 func (b *Balancer) Pick() (*server.Member, error) {
-	candidate := b.multiDiscovery.GetMembers()
-	for _, fn := range b.filterFuncs {
-		candidate = fn(candidate)
+	candidates := b.multiDiscovery.GetMembers()
+	if len(candidates) == 0 {
+		return nil, xerrors.New("member is not found")
 	}
-	picked, err := b.algorithm.Pick(candidate)
+	for _, fn := range b.filterFuncs {
+		candidates = fn(candidates)
+	}
+	picked, err := b.algorithm.Pick(candidates)
 	postPick(picked, err)
 	return picked, err
 }
